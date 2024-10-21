@@ -1,0 +1,29 @@
+- input_param.py: 		define hyperparameters  
+
+- ray_cluster_script.template:  	slurm script template  
+
+- submit_ray_tune.py: 		create slurm script based ont he ray_cluster_script.template
+
+- auto_sub.py: check if jobs are done iterativly. If done, submit the next batch 
+
+    - to submit ray.tune jobs for 2-layer network with 9 and 1 neurons per group for 1st and 2nd layer with specified number of samples: 
+        nohup python auto_sub.py --task ray.tune --torchvision_data MNIST --sqrt_grp_size "[3, 1]" --idx_range_train '[0, 1000]' --idx_range_valid '[0, 1000]' --idx_range_test '[0, 1000]' --cluster bell --account standby >&out&
+
+    - to submit ray.train jobs for a 1-layer network with 1 neurons per group for with 2 workers
+        python auto_sub.py --task ray.train --torchvision_data MNIST --sqrt_grp_size "[1]" --idx_range_train '[0, 1000]'  --idx_range_test '[0, 1000]' --cluster negishi --account standby  --num_workers 2 --test_option add_more_neuron 
+        
+        
+
+- to add some brief description of the jobs, use --note:
+    nohup python auto_sub.py --task ray.tune --torchvision_data MNIST --sqrt_grp_size "[3, 1]" --idx_range_train '[0, 1000]' --idx_range_valid '[0, 1000]' --idx_range_test '[0, 1000]' --cluster bell --account standby --note "_gmax1.0_rerun_with_4th_gen_model" >&out&
+
+- for ray.tune jobs, to change the default search_algorithm: HyperOptSearch. to, e.g. BayesOptSearch.
+        nohup python auto_sub.py --task ray.tune --torchvision_data MNIST --sqrt_grp_size "[3, 1]" --cluster bell --account physics --search_algo BayesOptSearch>& out_sub&
+
+- create_initial_params.py: create initial hyperameters with promising values for the training
+
+- hyperparam_tune_base.py: search range for the base mode, i.e. sqrt_grp_size = 1
+
+- hyperparam_tune_1_hlayer.py: search range for the 1st hidden layer when sqrt_grp_size > 1
+
+- hyperparam_tune_multi_hlayer.py: search range for the multiple hidden layers

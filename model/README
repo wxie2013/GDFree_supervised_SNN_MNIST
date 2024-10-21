@@ -1,0 +1,8 @@
+# Spike.ipynb :   
+	parent class for the model
+
+# Spike_MNIST_Nlayer.ipynb:  
+	daughter class for the model
+
+# run_Spike.ipynb:   
+example macro to run the model

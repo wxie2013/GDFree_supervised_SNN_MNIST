@@ -1,0 +1,18 @@
+* ana_ray.tune_results.py: plot analyze ray.tune csv output in groups. 
+  --ray_log_dir RAY_LOG_DIR  or -d:  #path to ray_log/brian2
+     this will analyze data from each trainable directories. 
+     This will also write the hyperameters to the result.txt. It works even if the tuning 
+     is not done yet
+  --out_file_name, or -f: 
+     will be attached with '.root' and '.txt' to form the output file name of two files.
+
+* ana_ray.train_results.py:
+  -d "base dir of ray.train output" 
+
+* plot/plot_trial_result.C: 
+  plot all variables vs. eff_valid - eff_multi_match_valid
+
+
+* plot/plot_details.C:
+  plot the details of the spikes for debugging purpose
+  

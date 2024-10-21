@@ -1,0 +1,62 @@
+========================
+##  run_ray_tune.py  ##
+========================
+example to tune the model with ray.tune
+- for 2-hlayer with sqrt(Nneuron)/group 3 and 1 for the 1st and 2nd layer and  run 10000 seconds: 
+    ipy run_ray_tune.py -- --torchvision_data MNIST --sqrt_grp_size '[3, 1]' --search_algo HyperOptSearch --n_epoch 2
+
+- for resumed tuning with options, the default option is: contine_finished 
+
+     ipy run_ray_tune.py -- --torchvision_data MNIST --sqrt_grp_size '[3, 1]' --time_budget_s 10000 --search_algo HyperOptSearch
+
+- for specific number of training, valiation and test  samples: 
+
+   ipy run_ray_tune.py -- --torchvision_data MNIST --sqrt_grp_size '[3, 1]' --time_budget_s 10000 --search_algo HyperOptSearch --idx_range_train '[0, 1000]' --idx_range_valid '[0, 100]' --idx_range_test '[0, 100]'
+
+-- for more detailed debug information: 
+
+     ipy run_ray_tune.py -- --torchvision_data MNIST --sqrt_grp_size '[3, 1]' --time_budget_s 10000 --search_algo SkOptSearch --debug True
+
+-- change search algorithm:
+
+   -- To change it to BayesOptSearch:
+
+     ipy run_ray_tune.py -- --torchvision_data 'MNIST' --sqrt_grp_size '[3, 1]' --time_budget_s 10000 --search_algo BayesOptSearch
+
+-- Turn off ASHAScheduler
+
+    ipy run_ray_tune.py -- --torchvision_data 'MNIST' --sqrt_grp_size '[3, 1]' --time_budget_s 10000 --search_algo SkOptSearch --use_scheduler False
+
+   Note: I don't know how the scheduler decide to stop a run, but there seem to be more crash w/o it
+
+- try to resume from errored trials, there are options: resume_errored and restart_errored, which need to be tested
+
+======================
+## run_ray_train.py ##
+======================
+-- to run with a specific test_option:
+ipython run_ray_train.py -- --torchvision_data MNIST  --num_workers 2 --sqrt_grp_size '[1]' --idx_range_train '[0, 20]' --idx_range_test '[0, 10]' --test_option add_more_neuron --n_epoch 2
+
+--to run train only:
+ipython run_ray_train.py -- --torchvision_data MNIST --num_workers 2  --sqrt_grp_size '[1]' --idx_range_train '[0, 20]' --idx_range_test '[0, 10]' --test False
+
+--to run test only w/o advatk:
+ipython run_ray_train.py -- --torchvision_data MNIST --num_workers 2  --sqrt_grp_size '[1]' --idx_range_train '[0, 20]' --idx_range_test '[0, 10]' --train False
+
+--to run test and advatk:
+ipython run_ray_train.py -- --torchvision_data MNIST --num_workers 2  --sqrt_grp_size '[1]' --idx_range_train '[0, 20]' --idx_range_test '[0, 10]' --train False --advatk spsa
+
+--to run both train and test w/o run advatk:
+ipython run_ray_train.py -- --torchvision_data MNIST --num_workers 2  --sqrt_grp_size '[1]' --idx_range_train '[0, 20]' --idx_range_test '[0, 10]' 
+
+--to run both train and test w/ run advatk:
+ipython run_ray_train.py -- --torchvision_data MNIST --num_workers 2  --sqrt_grp_size '[1]' --idx_range_train '[0, 20]' --idx_range_test '[0, 10]' --advatk spsa
+
+Note: by default 
+--fixed_seed=False, i.e. each worker sample different input samples, if you want each worker to sample the same input samples, set --fixed_seed=True
+--save_test_data=False, if you want to save the test data for, e.g. plot the image of a misidentified label, set --save_test_data=True
+
+#########################################################################
+Note:  One can speed up testing using '--test_option use_rank0_info'
+#########################################################################
+-- if training take a long time, e.g. > 4 hours standby queue limit with sqrt_grp_size: [10, 10, 10], one can run in a local machine to do training only with one worker using '--test False --num_workers 1'. After that, one can use '--train False --num_workers 50 --test_option use_rank0_info' to do the test with 50 workers. The option 'use_rank0_info' means all workers load the train synapses and neuron information from rank 0, i.e. the only worker in training stage, and procede to test.
